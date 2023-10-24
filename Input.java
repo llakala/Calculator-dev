@@ -15,13 +15,14 @@ class Input {
 			try // Tries to assign input to scanner.nextBigDecimal(), but if a number isn't entered, throws an error
 			{
 				input = scanner.nextBigDecimal();
-				if (0 == (input.compareTo(BigDecimal.ZERO)) && dividing) // If dividing (checked via isDividing method), and input is 0 for second number, make user choose new input
+				if (0 != (input.compareTo(BigDecimal.ZERO)) || !dividing) // If dividing (checked via isDividing method), and input is 0 for second number, make user choose new input
 				{
-					System.err.println("You can't divide by zero! Please choose another number.");
+					break;
 				}
 				else
 				{
-					break; // Breaks out of loop to return input
+					System.err.println("You can't divide by zero! Please choose another number.");
+					scanner.next();
 				}
 			}
 			catch(InputMismatchException e) // Catches InputMismatchException if user doesn't input a number
@@ -35,74 +36,66 @@ class Input {
 
 
 
-	public static char getOperatorInput(String message, Scanner scanner) 
+	public static Operator getOperatorInput(String message, Scanner scanner) 
 	{
-		char o;
+		Operator operator;
+		char inputChar;
 		System.out.println(message);
 		while (true) // Loops forever unless broken (loop only broken when input is an operator)
 		{
-			try // Tries to assign input to scanner.next().charAt(0), but if a char isn't entered,  throws an error
-				{
-					o = scanner.next().charAt(0);
-					if (o == '+' 
-						|| o == '-' 
-						|| o == '*' 
-						|| o == '/' 
-						|| o == '%')
-					{
-						break; // Breaks out of loop to return o
-					}
-					else // If some other character is entered, this makes the user try again until an operator is provided
-					{
-						System.err.println("That's not a valid operator! Please try again.");
-					}
+			try { // 
+				inputChar = scanner.next().charAt(0);
+				operator = Operator.fromChar(inputChar);
+				if (operator != null) {
+					break; // 
+				} else { // If some other character is entered, this makes the user try again until an operator is provided
+					System.err.println("That's not a valid operator! Please try again.");
+					scanner.next();
 				}
-			catch (InputMismatchException e) // Catches InputMismatchException if user doesn't input a char and makes user try again until an operator is provided
-				{
-					System.out.println("That's more than one character! Please try again.");
-				}
+			} catch (InputMismatchException e) { // Catches InputMismatchException if user doesn't input a char and makes user try again until an operator is provided
+				System.out.println("That's more than one character! Please try again.");
+				scanner.next();
+			}
 		}
-		return o;
-	}
-
-
-// If operator is /, return true. Else, return false.
-	public static boolean isDivision(char o) 
-	{
-		if (o == '/') 
-			return true;
-		else
-			return false;
+		return operator;
 	}
 
 
 
-	public static char getYesNoInput(String message, Scanner scanner) {
-		char yn;
+
+
+
+	public static boolean getYesNoInput(String message, Scanner scanner) {
+		char yesOrNo;
 		System.out.println(message);
 		while (true) // Loops forever unless broken (loop only broken when input is either y or n)
 		{
 			try // Tries to assign input to scanner.next().charAt(0), but if a character isn't entered, it throws an error
 				{
-					yn = scanner.next().charAt(0);
-					if (yn == 'y'
-						|| yn == 'Y'
-						|| yn == 'n'
-						|| yn == 'N')
+					yesOrNo = scanner.next().charAt(0);
+					if (yesOrNo == 'y'
+						|| yesOrNo == 'Y'
+						|| yesOrNo == 'n'
+						|| yesOrNo == 'N')
 					{
 						break; // Breaks out of loop to return yn
 					}
 					else // If some other character is entered, this makes the user try again until y/n is provided
 					{
 						System.err.println("That's not y or n! Please try again.");
+						scanner.next();
 					}
 				}
 			catch (InputMismatchException e) // Catches InputMismatchException if user doesn't input an int, makes the user try again until y/n is provided
 				{
 					System.out.println("That's more than one character! Please try again.");
+					scanner.next();
 				}
 		}
-		return yn;
+		return (yesOrNo == 'y'
+				|| yesOrNo == 'Y'
+				|| yesOrNo == 'n'
+				|| yesOrNo == 'N');
 	}
 
 }
