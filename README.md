@@ -1,8 +1,9 @@
 # Calculator-dev\
 TODO 0.6:\
 Add proper documentation for classes and improve/refactor comments\
-Assume booleans are initialized as false\
-Move Main.java code into main method of Calculator class\
+Implement an error message when nothing is passed as input\
+Debug issues with slow user input\
+Further optimize input class\
 \
 ROADMAP: \
 0.7\

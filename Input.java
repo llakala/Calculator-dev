@@ -66,17 +66,18 @@ class Input {
 
 
 	public static boolean getYesNoInput(String message, Scanner scanner) {
-		char yesOrNo;
+		char yesOrNoInput;
+		boolean isInputYes;
+		boolean isInputNo;
 		System.out.println(message);
 		while (true) // Loops forever unless broken (loop only broken when input is either y or n)
 		{
 			try // Tries to assign input to scanner.next().charAt(0), but if a character isn't entered, it throws an error
 				{
-					yesOrNo = scanner.next().charAt(0);
-					if (yesOrNo == 'y'
-						|| yesOrNo == 'Y'
-						|| yesOrNo == 'n'
-						|| yesOrNo == 'N')
+					yesOrNoInput = Character.toLowerCase(scanner.next().charAt(0));
+					yes = (yesOrNoInput == 'y');
+					no = (yesOrNoInput == 'n');
+					if (isInputYes || isInputNo)
 					{
 						break; // Breaks out of loop to return yn
 					}
@@ -92,10 +93,7 @@ class Input {
 					scanner.next();
 				}
 		}
-		return (yesOrNo == 'y'
-				|| yesOrNo == 'Y'
-				|| yesOrNo == 'n'
-				|| yesOrNo == 'N');
+		return (isInputYes);
 	}
 
 }
