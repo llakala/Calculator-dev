@@ -3,11 +3,16 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Scanner;
 
+/**
+* Calculator.java
+* This class holds the main method along with all calculation-based helper methods. If the method isn't based around user input or the Operator enum, it'll be here.
+*/
 public class Calculator {
 	// Instance variables initialized here
 	private static BigDecimal firstNumber, secondNumber, result;
 	private static boolean goAgain;
 	private static Operator operator;
+	private static final Scanner scanner = new Scanner (System.in);
 
 
 	/**
@@ -20,44 +25,47 @@ public class Calculator {
 			* The correct math has been performed based on the operator input. 
 	 */
 	private static BigDecimal performOperation(BigDecimal numA, Operator operator, BigDecimal numB) {
-		switch (operator) {
-			case ADDITION:
-				return numA.add(numB);
-			case SUBTRACTION:
-				return numA.subtract(numB);
-			case MULTIPLICATION:
-				return numA.multiply(numB);
-			case DIVISION:
-				return numA.divide(numB, new MathContext(8, RoundingMode.HALF_UP)); // Precision of 8 digits is used for division, with the last number rounding up if it's >= 5.
-			case MODULO:
-				return numA.remainder(numB);
-			default:
-				return BigDecimal.ZERO; // Should never happen since operator can only hold valid elements, but Java complains if there isn't a default case
-		}
+		return switch (operator) {
+			case ADDITION -> numA.add(numB);
+			case SUBTRACTION -> numA.subtract(numB);
+			case MULTIPLICATION -> numA.multiply(numB);
+			case DIVISION -> numA.divide(numB, new MathContext(8, RoundingMode.HALF_UP)); // Precision of 8 digits is used for division, with the last number rounding up if it's >= 5.
+			case MODULO -> numA.remainder(numB);
+		};
 	}
+
+
 	
+	/**
+		* Getter method used to get operator value from other classes.
+	 */
 	public static Operator getOperator() {
 		return operator;
 	}
 
 
-	
+	/**
+		* Main method where code starts. 
+  		* Preconditions: 
+			* Instance variables have all been initialized
+		* Postconditions (per loop): 
+			* The user's inputted numbers and operator have resulted in the correct answer. If the user inputted yes, the code has repeated. 
+	 */
 	public static void main (String[] args) {
-		try (Scanner scanner = new Scanner(System.in)) { 
+		try (scanner) { 
 			do {
-				// Input for first number and operator
+				// Values are inputted for the first three numbers using helper methods from the Input class. 
 				firstNumber = Input.getNumberInput("Tell me your first number.", scanner);
-				operator = Input.getOperatorInput("Now, tell me what operation you want to use. Your options are +, -, *, /, and %.", scanner);
+				operator = Input.getOperatorInput(scanner);
 				secondNumber = Input.getNumberInput("Finally, tell me another number.", scanner);
-				result = performOperation(firstNumber, operator, secondNumber);
+
+				result = performOperation(firstNumber, operator, secondNumber); // Uses a Calculator method to perform the correct operation on the numbers based on which operator is used.
 				System.out.println(firstNumber + " " + operator.getSymbol() + " " + secondNumber + " = " + result); // Prints full math equation
-				// Asks if user wants to go again
-				goAgain = Input.getYesNoInput("Would you like to go again? Type \"y\" for yes, and \"n\" for no.", scanner);
-				if (!goAgain) {
-					System.out.println("Shutting down...");
-				}
-				operator = null; // Resets operator to null before the loop continues. Not the best fix, but better than the alternatives
-			} while (goAgain); // After the do-while loop has gone through once, it will check if goAgain has been set to y before repeating again.
+				operator = null; // Resets operator to null before the loop resets. Not the best fix, but better than the alternatives
+
+				goAgain = Input.getYesNoInput(scanner); // Stores whether user wants to go again as a boolean
+
+			} while (goAgain); // After the do-while loop has gone through once, it will check if goAgain is true before repeating.
 		}
 	}
 }

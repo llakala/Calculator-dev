@@ -1,6 +1,6 @@
 # Calculator-dev\
 TODO 0.6:\
-Add proper documentation and commenting for calculator and operator files \
+Add proper documentation and commenting for Operator.java files \
 TODO 0.7\
 	Implement an error message when nothing is passed as input\
 	Potentially find better way to reset operator at beginning of each loop\
