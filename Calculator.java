@@ -60,7 +60,7 @@ public class Calculator {
 				secondNumber = Input.getNumberInput("Finally, tell me another number.", scanner);
 
 				result = performOperation(firstNumber, operator, secondNumber); // Uses a Calculator method to perform the correct operation on the numbers based on which operator is used.
-				System.out.println(firstNumber + " " + operator.getSymbol() + " " + secondNumber + " = " + result); // Prints full math equation
+				System.out.println(firstNumber + " " + operator.getSymbol() + " " + secondNumber + " = " + result); 
 				operator = null; // Resets operator to null before the loop resets. Not the best fix, but better than the alternatives
 
 				goAgain = Input.getYesNoInput(scanner); // Stores whether user wants to go again as a boolean
