@@ -4,79 +4,82 @@ import java.math.BigDecimal;
 
 
 /**
-* Input.java
-* This class provides helper methods for use in the Calculator.java class, pertaining specifically to user input
+	* Input.java
+	* This class handles the user input for the Calculator.java class. It also validates the input and prevents errors such as division by zero.
+	* The Scanner class is used to read input from the console, and the custom Operator enum is used to represent different arithmetic operators. 
 */
 class Input {
-	// Variables are initialized as static instance variables to keep performance consistent during each loop
-	private static BigDecimal inputNum;
-	private static boolean isDividing;
-	private static char operatorInput;
+	// Variables are declared as class variables to keep performance consistent during each loop
+	public static final Scanner scanner = new Scanner (System.in);
+	private static String strInput;
+	private static BigDecimal numInput;
 	private static Operator operator;
-	private static char yesOrNoInput;
-	private static boolean isInputYes;
 
-/**
-	* Method used to accept number input for calculations. The BigDecimal type is used to allow better precision and prevent floating-point errors.
-	* Preconditions: 
-		* Parameters are not null.
-		* Scanner has been initialized.		
-		* operator variable is null if this is the first number being inputted, and not null if this is the second number being inputted.
-	* Postconditions: 
-		* The user has inputted a numerical value.
-		* Divison by zero has been prevented.
+
+	/**
+		This method reads a line of input from the user and trims any leading or trailing whitespace. If the input is empty, it prints an error message and prompts the user to enter something. It repeats this process until a non-empty input is received.
+		* @return A non-empty string input from the user
+	 */
+	private static String readInput() {
+		do { 
+			strInput = scanner.nextLine().trim(); 
+			if (strInput.isEmpty()) {
+				System.err.println("You didn't enter anything! Please try again.");
+			}
+
+		} while (strInput.isEmpty()); // Will now repeat loop until strInput is no longer empty
+		return strInput; 
+	}
+
+	
+	/**
+	* This method converts a string input into a BigDecimal object. Before returning the input, the method checks if the input is a valid number, and that the input is not zero when the operator is division.
+ 	* The Calculator.getOperator method is used to get the current operator, which is null if this is the first number being entered. If the input is invalid, the method prints an error message and the user is prompted to enter a new number.  
+	* @param message The message to prompt the user for entering a number. Differs depending on if the number being inputted is the first or second number. 
+	* @return A valid BigDecimal object representing the user input, that won't result in division by zero
  */
-	public static BigDecimal getNumberInput(String message, Scanner scanner) {
-		operator = Calculator.getOperator(); // getOperator method is a getter which returns the operator. If this is the first number being checked for, operator will be null.
+	public static BigDecimal getNumberInput(String message) {
+		operator = Calculator.getOperator(); // This method call returns null if this is the first number being set, and the current operator if this is the second number.  
 		System.out.println(message);
-		while (true) // Loop repeats forever until postconditions are passed
-		{
-			try 
-			{
-				inputNum = scanner.nextBigDecimal(); 
-				isDividing = (operator == operator.DIVISION); 
+		
+		while (true) { // Loop runs indefinitely until a valid number is returned
+			try {
+				numInput = new BigDecimal(readInput()); // Tries to convert the input into a BigDecimal object, and throws an exception if it fails. The readInput() method call ensures the input isn't null. 
 
-				if (isDividing && inputNum.compareTo(BigDecimal.ZERO) == 0) // Give error message and restarts loop if dividing by zero
-				{ 
+				if (operator == operator.DIVISION && BigDecimal.ZERO.equals(numInput)) { // Condition checks if the operator is division and if the input is zero, which would cause an error. 
 					System.err.println("You can't divide by zero! Please choose another number.");
 				}
-				else 
-				{
-					return inputNum; // Only returns input if we aren't dividing by zero
-				}
+
+				else // Returns input if all validation is passed
+					return numInput; 
 			}
-			catch(InputMismatchException e) // Catches InputMismatchException if user doesn't input a number
-			{
+
+			catch(NumberFormatException e) { // Block catches NumberFormatException if user doesn't input a number
 				System.err.println("That's not a number! Please try again.");
-				scanner.next(); // scanner.next() is needed when catching errors to prevent an infinite loop, but not needed in if/else cases (for some reason)
+				continue; // Resets to beginning of while loop for new user input
 			}
 		}
 	}
 
 
-	
-	/**
-		* Method used to accept operators. The enum Operator is used, which only accepts certain characters as input. Documentation on this can be found in Operator.java.
-		* Preconditions: 
-			* Parameters don't equal null
-			* Scanner has been initialized
-		* Postconditions: 
-			* The user has selected a valid element of the Operator enum.
-	 */
-	public static Operator getOperatorInput(Scanner scanner) 
-	{
-		System.out.println("Now, tell me what operation you want to use. Your options are +, -, *, /, and %.");
-		while (true) // While loop repeats forever until postconditions are passed
-		{
-			operatorInput = scanner.next().charAt(0); // These two method calls combined create the equivalent of a scanner.nextChar method. Keep in mind that only the first char of the input is taken.
-			operator = Operator.fromChar(operatorInput); // Character input is transferred from character form to written-out form using Operator.fromChar method
 
-			if (operator == null) // Only occurs if invalid char (one that isn't an operator) was inputted
-			{ 
+	/**
+		* This method converts a String input and converts it into an object of the Operator enum. Before the operator input is returned, the method ensures the input is a valid operator. 
+  		* The Operator.fromString method call is used, which will return null if the input isn't a valid operator. If the input is found to be invalid, an error message is printed and the user is then prompted to input a valid operator. 
+		* @return A valid Operator object chosen by the user input
+	 */
+	public static Operator getOperatorInput() {
+		System.out.println("Now, tell me what operation you want to use. Your options are +, -, *, /, and %.");
+
+		while (true) { // While loop runs indefinitely until a valid operator is returned
+			strInput = readInput();
+			operator = Operator.symbolToOperator(strInput); // Method call converts the user's inputted character into an Operator object (or null if the input was invalid)
+
+			if (operator == null) { // Condition checks if the input was invalid
 				System.err.println("That's not a valid operator! Please try again.");
 			}
-			else // If operator is NOT null
-			{
+
+			else { // Branch returns operator if it was valid
 				return operator;
 			}
 		}
@@ -85,30 +88,32 @@ class Input {
 
 	
 	/**
-		* Method used to accept yes/no input on restarting code
-		* Preconditions: 
-			* Parameters don't equal null
-			* Scanner has been initialized
-		* Postconditions: 
-			* User has inputted yes or no. 
+		This method asks the user if they want to go again or not. 
+  		* If the input is "y", the method returns true. If the input is "n", the method returns false and prints a message saying "Shutting down...". If the input is neither "y" nor "n", it prints an error message and asks the user to enter either "y" or "n". It repeats this process until a valid input is received.
+		@return A boolean value representing the user's choice to go again or not go again
 	 */
-	public static boolean getYesNoInput(Scanner scanner) {
+	public static boolean getYesNoInput() {
 		System.out.println("Would you like to go again? Type \"y\" for yes, and \"n\" for no.");
-		while (true) { // Loops forever until postconditions are passed.
-			yesOrNoInput = Character.toLowerCase(scanner.next().charAt(0)); // Takes lowercase scanner input so uppercase doesn't have to be checked for every time
-			if (yesOrNoInput != 'y' && yesOrNoInput != 'n')
-			{
-				System.err.println("That's not y or n! Please try again.");
+
+		while (true) { // Loop runs indefinitely until a valid input is returned
+			strInput = readInput(); // Method call prevents a null input
+
+			if (strInput.equalsIgnoreCase("y")) { // Condition checks if input was "y" (case insensitive)
+				return true;
 			}
-			else // Only runs if input was either 'y' or 'n'
-			{
-				isInputYes = (yesOrNoInput == 'y'); 
-				if (!isInputYes) {
-					System.out.println("Shutting down...");
-				}
-				return isInputYes; // Returns boolean that checks if the input was 'y'.
+
+			else if (strInput.equalsIgnoreCase("n")) { // Condition checks if input was "y" (case insensitive)
+				System.out.println("Shutting down...");
+				return false;
 			}
+
+			else { // Handles all other input that is neither "y" nor "n". 
+				System.err.println("Please enter something!");
+			}
+
 		}
 	}
-
+	public static Scanner getScanner() {
+		return scanner;
+	}
 }

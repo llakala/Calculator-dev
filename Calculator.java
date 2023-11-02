@@ -4,41 +4,50 @@ import java.math.RoundingMode;
 import java.util.Scanner;
 
 /**
-* Calculator.java
-* This class holds the main method along with all calculation-based helper methods. If the method isn't based around user input or the Operator enum, it'll be here.
+	* Calculator.java
+	* A simple calculator program that takes two number and an operator from the user with the Scanner class, and performs the corresponding arithmetic operation. 
+	* The program uses the BigDecimal class to handle decimal numbers and avoid floating-point errors. The program also allows the user to repeat the calculation with new numbers and operators. 
 */
 public class Calculator {
-	// Instance variables initialized here
+	// Class variables are declared here for best performance upon multiple loop iterations.
 	private static BigDecimal firstNumber, secondNumber, result;
-	private static boolean goAgain;
 	private static Operator operator;
-	private static final Scanner scanner = new Scanner (System.in);
-
+	private static boolean goAgain;
+	private static final MathContext precision = new MathContext(8, RoundingMode.HALF_UP);
 
 	/**
-		* Method used to perform math with two numbers using the given operation. Note: See documentation on Operator enum in the Operator.java class.
-		* Preconditions: 
-			* Parameters have all been chosen based on user input
-			* Operator is a valid case
-			* Division by zero has been prevented
-		* Postconditions: 
-			* The correct math has been performed based on the operator input. 
-	 */
-	private static BigDecimal performOperation(BigDecimal numA, Operator operator, BigDecimal numB) {
-		return switch (operator) {
-			case ADDITION -> numA.add(numB);
-			case SUBTRACTION -> numA.subtract(numB);
-			case MULTIPLICATION -> numA.multiply(numB);
-			case DIVISION -> numA.divide(numB, new MathContext(8, RoundingMode.HALF_UP)); // Precision of 8 digits is used for division, with the last number rounding up if it's >= 5.
-			case MODULO -> numA.remainder(numB);
-		};
+		* This method resets the operator variable to null for each time the main method loops.
+		* This is done to avoid issues where the code loops but the operator still has the value from the previous iteration stored. For more info, see the Input.getNumberInput method. 
+	*/
+	public static void reset() {
+		operator = null;
 	}
-
-
 	
 	/**
-		* Getter method used to get operator value from other classes.
-	 */
+		* Method used to perform the correct mathematical operation on two numbers based on the inputted operator. 
+		* Switch/case is used instead of if/else for improved performance upon multiple loops. MathContext handles precision and roundng for decimal numbers, and is used when dividing. 
+		* @param firstNum The first number inputted by the user. 
+		* @param operator The operator chosen by the user
+		* @param secondNum The second number inputted by the user. 
+		* @return The result of the mathematical operation as a BigDecimal number.
+	*/
+	private static BigDecimal performOperation(BigDecimal firstNum, Operator operator, BigDecimal secondNum) {
+		return switch (operator) {
+			case ADDITION -> firstNum.add(secondNum);
+			case SUBTRACTION -> firstNum.subtract(secondNum);
+			case MULTIPLICATION -> firstNum.multiply(secondNum);
+			case DIVISION -> firstNum.divide(secondNum, precision); // Precision of 8 digits is used for division, with the last number rounding up if it's >= 5.
+			case MODULO -> firstNum.remainder(secondNum);
+		};
+	}
+	
+
+	
+/**
+	* Getter method used to get operator value from other classes.
+	* This is used in the Input class to prevent division by zero when taking number input. 
+	* @return The operator variable as an Operator object
+*/
 	public static Operator getOperator() {
 		return operator;
 	}
@@ -46,26 +55,24 @@ public class Calculator {
 
 	/**
 		* Main method where code starts. 
-  		* Preconditions: 
-			* Instance variables have all been initialized
-		* Postconditions (per loop): 
-			* The user's inputted numbers and operator have resulted in the correct answer. If the user inputted yes, the code has repeated. 
+		* A do/while loop is used to repeat the code for new numbers and a new operator. Helper methods from Input class are used for getting user input. 
 	 */
 	public static void main (String[] args) {
-		try (scanner) { 
-			do {
+		Calculator calc = new Calculator();
+		Scanner scan = Input.getScanner();
+		try (scan) {
+			do { 
 				// Values are inputted for the first three numbers using helper methods from the Input class. 
-				firstNumber = Input.getNumberInput("Tell me your first number.", scanner);
-				operator = Input.getOperatorInput(scanner);
-				secondNumber = Input.getNumberInput("Finally, tell me another number.", scanner);
+				firstNumber = Input.getNumberInput("Tell me your first number.");
+				operator = Input.getOperatorInput();
+				secondNumber = Input.getNumberInput("Finally, tell me another number.");
 
 				result = performOperation(firstNumber, operator, secondNumber); // Uses a Calculator method to perform the correct operation on the numbers based on which operator is used.
-				System.out.println(firstNumber + " " + operator.getSymbol() + " " + secondNumber + " = " + result); 
-				operator = null; // Resets operator to null before the loop resets. Not the best fix, but better than the alternatives
-
-				goAgain = Input.getYesNoInput(scanner); // Stores whether user wants to go again as a boolean
-
-			} while (goAgain); // After the do-while loop has gone through once, it will check if goAgain is true before repeating.
+				System.out.println(String.format("%s %s %s = %s", firstNumber, operator.getSymbol(), secondNumber, result));
+				reset(); // Resets operator variable to null to prevent using the previous value if the code loops
+				
+				goAgain = Input.getYesNoInput(); // Asks user whether they want to go again, stored as a boolean
+			} while (goAgain); // Will only repeat if goAgain is true.
 		}
 	}
 }
